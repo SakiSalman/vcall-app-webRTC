@@ -38,6 +38,8 @@ const localStreamInit = async () => {
 
   // Get remote Stream
   remoteStream = new MediaStream()
+  
+  s1.srcObject = remoteStream 
 
   localStream.getTracks().forEach( track => {
     peerConn.addTrack(track, localStream)
@@ -75,6 +77,8 @@ const localStreamInit = async () => {
   // Get remote Stream
   remoteStream = new MediaStream()
 
+  s1.srcObject = remoteStream 
+
   localStream.getTracks().forEach( track => {
     peerConn.addTrack(track, localStream)
   })
@@ -99,12 +103,20 @@ const localStreamInit = async () => {
     await peerConn.setRemoteDescription(offer)
 
   // create Offer
-  let answer = await peerConn.createOffer()
+  let answer = await peerConn.createAnswer()
   document.getElementById('answer_sdp').value = JSON.stringify(answer)
   await peerConn.setLocalDescription(answer)
 
 
 }
+
+// add answer
+const addAnswer = async () => {
+  let answer = document.getElementById('addanswer-sdp').value
+  answer = JSON.parse(answer)
+  await peerConn.setRemoteDescription(answer)
+}
+
 localStreamInit()
 
 
@@ -115,6 +127,10 @@ document.getElementById('create_offer').onclick = () => {
 // handle answer with onclick
 document.getElementById('create_answer').onclick = () => {
   createAnswer()
+}
+// handle Add answer with onclick
+document.getElementById('add_answer').onclick = () => {
+  addAnswer()
 }
 
 // handle vido tracks with onclick
