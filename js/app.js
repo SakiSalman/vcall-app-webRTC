@@ -44,7 +44,7 @@ const localStreamInit = async () => {
   })
 
   peerConn.ontrack = async (event) => {
-    event.streams[0].getTracks( track => {
+    event.streams[0].getTracks.forEach(track => {
       remoteStream.addTrack(track)
     })
   }
@@ -80,7 +80,7 @@ const localStreamInit = async () => {
   })
 
   peerConn.ontrack = async (event) => {
-    event.streams[0].getTracks( track => {
+    event.streams[0].getTracks().forEach(track => {
       remoteStream.addTrack(track)
     })
   }
@@ -92,9 +92,6 @@ const localStreamInit = async () => {
     }
   }
 
-
-
-
     // recieve Offer
     let offer = document.getElementById('offer_sdp').value
     offer = JSON.parse(offer)
@@ -103,7 +100,7 @@ const localStreamInit = async () => {
 
   // create Offer
   let answer = await peerConn.createOffer()
-  document.getElementById('offer_sdp').value = JSON.stringify(answer)
+  document.getElementById('answer_sdp').value = JSON.stringify(answer)
   await peerConn.setLocalDescription(answer)
 
 
