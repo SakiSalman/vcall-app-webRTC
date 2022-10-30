@@ -9,129 +9,122 @@ let peerConn;
 let localStream;
 let remoteStream;
 
-
 // Server Initialization
 
 let servers = {
-  iceServers : [{
-    urls : ["stun:stun1.1.google.com:19302",
-      "stun:stun2.2.google.com:19302"]
-  }]
-}
+  iceServers: [
+    {
+      urls: ["stun:stun1.1.google.com:19302", "stun:stun2.2.google.com:19302"],
+    },
+  ],
+};
 
 // GET lOCAL Stream
 
 const localStreamInit = async () => {
-
   localStream = await navigator.mediaDevices.getUserMedia({
-    video : true,
-    audio : true
-  })
+    video: true,
+    audio: true,
+  });
 
   s2.srcObject = localStream;
-  localStream.getAudioTracks()[0].enabled = false
-}
+  localStream.getAudioTracks()[0].enabled = false;
+};
 
-  // create Offer Function
-  const createOffer = async () => {
-  peerConn = new RTCPeerConnection(servers)
+// create Offer Function
+const createOffer = async () => {
+  peerConn = new RTCPeerConnection(servers);
 
   // Get remote Stream
-  remoteStream = new MediaStream()
-  
-  s1.srcObject = remoteStream 
+  remoteStream = new MediaStream();
 
-  localStream.getTracks().forEach( track => {
-    peerConn.addTrack(track, localStream)
-  })
+  s1.srcObject = remoteStream;
+
+  localStream.getTracks().forEach((track) => {
+    peerConn.addTrack(track, localStream);
+  });
 
   peerConn.ontrack = async (event) => {
-    event.streams[0].getTracks.forEach(track => {
-      remoteStream.addTrack(track)
-    })
-  }
+    event.streams[0].getTracks.forEach((track) => {
+      remoteStream.addTrack(track);
+    });
+  };
   // check ice cendidate
 
   peerConn.onicecandidate = async (e) => {
-    if(e.candidate){
-      document.getElementById('offer_sdp').value = JSON.stringify(peerConn.localDescription)
+    if (e.candidate) {
+      document.getElementById("offer_sdp").value = JSON.stringify(
+        peerConn.localDescription
+      );
     }
-  }
+  };
+
+  // create Offer
+  let offer = await peerConn.createOffer();
+  document.getElementById("offer_sdp").value = JSON.stringify(offer);
+  await peerConn.setLocalDescription(offer);
+};
+// create answer Function
+const createAnswer = async () => {
+  peerConn = new RTCPeerConnection(servers);
+
+  // Get remote Stream
+  remoteStream = new MediaStream();
+
+  s1.srcObject = remoteStream;
+
+  localStream.getTracks().forEach((track) => {
+    peerConn.addTrack(track, localStream);
+  });
+
+  peerConn.ontrack = async (event) => {
+    event.streams[0].getTracks().forEach((track) => {
+      remoteStream.addTrack(track);
+    });
+  };
+  // check ice cendidate
+
+  peerConn.onicecandidate = async (e) => {
+    if (e.candidate) {
+      document.getElementById("answer_sdp").value = JSON.stringify(
+        peerConn.localDescription
+      );
+    }
+  };
 
   // recieve Offer
+  let offer = document.getElementById("offer_sdp").value;
+  offer = JSON.parse(offer);
 
-
-
-
-  // create Offer
-  let offer = await peerConn.createOffer()
-  document.getElementById('offer_sdp').value = JSON.stringify(offer)
-  await peerConn.setLocalDescription(offer)
-
-
-}
-  // create answer Function
-  const createAnswer = async () => {
-  peerConn = new RTCPeerConnection(servers)
-
-  // Get remote Stream
-  remoteStream = new MediaStream()
-
-  s1.srcObject = remoteStream 
-
-  localStream.getTracks().forEach( track => {
-    peerConn.addTrack(track, localStream)
-  })
-
-  peerConn.ontrack = async (event) => {
-    event.streams[0].getTracks().forEach(track => {
-      remoteStream.addTrack(track)
-    })
-  }
-  // check ice cendidate
-
-  peerConn.onicecandidate = async (e) => {
-    if(e.candidate){
-      document.getElementById('answer_sdp').value = JSON.stringify(peerConn.localDescription)
-    }
-  }
-
-    // recieve Offer
-    let offer = document.getElementById('offer_sdp').value
-    offer = JSON.parse(offer)
-
-    await peerConn.setRemoteDescription(offer)
+  await peerConn.setRemoteDescription(offer);
 
   // create Offer
-  let answer = await peerConn.createAnswer()
-  document.getElementById('answer_sdp').value = JSON.stringify(answer)
-  await peerConn.setLocalDescription(answer)
-
-
-}
+  let answer = await peerConn.createAnswer();
+  document.getElementById("answer_sdp").value = JSON.stringify(answer);
+  await peerConn.setLocalDescription(answer);
+};
 
 // add answer
 const addAnswer = async () => {
-  let answer = document.getElementById('addanswer-sdp').value
-  answer = JSON.parse(answer)
-  await peerConn.setRemoteDescription(answer)
-}
+  let answer = document.getElementById("addanswer-sdp").value;
+  answer = JSON.parse(answer);
+  await peerConn.setRemoteDescription(answer);
+};
 
-localStreamInit()
-
+localStreamInit();
 
 // handle Create offer with onclick
-document.getElementById('create_offer').onclick = () => {
-  createOffer()
-}
+document.getElementById("create_offer").onclick = () => {
+  createOffer();
+};
 // handle answer with onclick
-document.getElementById('create_answer').onclick = () => {
-  createAnswer()
-}
+document.getElementById("create_answer").onclick = () => {
+  createAnswer();
+};
 // handle Add answer with onclick
-document.getElementById('add_answer').onclick = () => {
-  addAnswer()
-}
+document.getElementById("add_answer").onclick = () => {
+  addAnswer();
+};
 
 // handle vido tracks with onclick
 let cameraStatus = true;
